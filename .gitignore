@@ -15,5 +15,13 @@ wheels/
 .ruff_cache/
 docs/_build/
 .ipynb_checkpoints/
-.typ
-.pdf
+
+# Nix
+result
+result-*
+
+# Course administration (local only)
+*.typ
+*.pdf
+*.bib
+homework.md

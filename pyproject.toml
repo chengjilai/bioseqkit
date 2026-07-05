@@ -1,0 +1,40 @@
+[project]
+name = "bioseqkit"
+version = "0.1.0"
+description = "A lightweight, dependency-free biological sequence processing toolkit (FASTA/FASTQ, stats, k-mer, minimizer, indexing)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Jilai Cheng", email = "chengjilai@sjtu.edu.cn" }]
+keywords = ["bioinformatics", "fasta", "fastq", "kmer", "minimizer", "sequence"]
+dependencies = []
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.7", "seaborn>=0.12"]
+net = ["requests>=2.28"]
+docs = ["sphinx>=7.0", "myst-parser>=2.0"]
+
+[project.scripts]
+bioseqkit = "bioseqkit.cli:main"
+
+[dependency-groups]
+dev = [
+    "pypdf>=6.14.2",
+    "pytest>=8.0",
+    "pytest-benchmark>=4.0",
+    "ruff>=0.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bioseqkit"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
