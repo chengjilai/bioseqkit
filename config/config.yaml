@@ -1,0 +1,16 @@
+# bioseqkit workflow configuration.
+
+# Input FASTA used when no `accession` is given (runs fully offline).
+input: "examples/example_data/sample.fa"
+
+# NCBI accession to download before analysis. Leave empty to use `input`.
+# Example: "NC_012920.1" (human mitochondrion, chrM).
+accession: ""
+
+# Where results are written.
+outdir: "results"
+
+# k-mer analysis parameters.
+k: 5
+top: 20
+threads: 1

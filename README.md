@@ -1,5 +1,11 @@
 # bioseqkit
 
+[![CI](https://github.com/chengjilai/bioseqkit/actions/workflows/ci.yml/badge.svg)](https://github.com/chengjilai/bioseqkit/actions/workflows/ci.yml)
+[![Docs](https://github.com/chengjilai/bioseqkit/actions/workflows/docs.yml/badge.svg)](https://chengjilai.github.io/bioseqkit/)
+[![PyPI](https://img.shields.io/pypi/v/bioseqkit.svg)](https://pypi.org/project/bioseqkit/)
+[![Python](https://img.shields.io/pypi/pyversions/bioseqkit.svg)](https://pypi.org/project/bioseqkit/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A lightweight, **dependency-free** biological sequence processing toolkit built
 from scratch in pure Python. `bioseqkit` implements FASTA/FASTQ parsing,
 sequence statistics, transformations, k-mer / minimizer analysis and FAI-like
@@ -44,6 +50,9 @@ bioseqkit/
 │   ├── entrez.py           # NCBI download helper
 │   └── cli.py              # argparse CLI
 ├── tests/                  # pytest suite (io/stats/transform/kmer/index/cli)
+├── benchmarks/             # benchmark driver + complexity analysis
+├── workflow/               # Snakemake pipeline (Snakefile)
+├── config/config.yaml      # workflow configuration
 ├── examples/
 │   ├── demo.ipynb          # Jupyter demo (stats, GC, k-mer spectrum, ...)
 │   └── example_data/sample.fa
@@ -97,6 +106,65 @@ bioseqkit index    examples/example_data/sample.fa      # write *.fai
 bioseqkit fetch    examples/example_data/sample.fa seq2:1-16
 ```
 
+## Understanding the output
+
+**`stats`** prints a JSON object; each field means:
+
+| Field | Meaning |
+|---|---|
+| `n_seqs` | number of sequences in the file |
+| `total_length` | sum of all sequence lengths (bp) |
+| `min_length` / `max_length` | shortest / longest sequence |
+| `mean_length` | average sequence length |
+| `n50` | length such that sequences ≥ this length cover ≥ 50% of `total_length` (assembly contiguity metric) |
+| `gc_content` | fraction of G/C bases in `[0, 1]` — useful for species/GC-bias assessment |
+| `n_ratio` | fraction of ambiguous `N` bases — a data-quality indicator |
+| `base_counts` | per-base counts (`A/C/G/T/N/...`), the base-composition matrix |
+
+**`kmer`** prints a tab-separated `kmer<TAB>count` table, one line per k-mer,
+sorted by descending frequency (top-`--top`). With `--canonical`, a k-mer and
+its reverse complement are counted together, so results are strand-independent.
+
+**`revcomp` / `translate`** emit FASTA to stdout. `translate` produces six
+records per input sequence, suffixed `_frame+1..+3` (forward strand, offsets
+0/1/2) and `_frame-1..-3` (reverse-complement strand); `*` denotes a stop codon
+and `X` an untranslatable codon.
+
+**`minimizer`** prints `seq_id<TAB>position<TAB>minimizer` — the sampled k-mers
+and their 0-based positions along the sequence.
+
+**`index`** writes a `<file>.fai` (name, length, offset, bases-per-line,
+bytes-per-line); **`fetch`** prints the requested sub-sequence as FASTA using
+1-based inclusive coordinates.
+
+## Reproducible pipeline (Snakemake)
+
+A [Snakemake](workflow/Snakefile) workflow chains the CLI into a
+"data acquisition → processing → analysis" pipeline
+(`fetch_input → stats + kmer + index`):
+
+```bash
+snakemake -c1                                   # run offline on the bundled example
+snakemake -n                                    # dry run: show the job DAG
+snakemake -c4 --config accession=NC_012920.1 k=6  # download human chrM from NCBI, then analyse
+```
+
+Outputs are written to `results/` (`stats.json`, `kmers.tsv`, `input.fa.fai`).
+Configure input, accession and parameters in [`config/config.yaml`](config/config.yaml).
+
+## Benchmarks & complexity
+
+```bash
+python benchmarks/bench.py            # sweep 100 kbp .. 4 Mbp, write results.csv + scalability.png
+```
+
+See [`benchmarks/README.md`](benchmarks/README.md) for the full time/space
+complexity table and measured scaling. In short: k-mer counting is O(n·k) and
+scales to ~3× on four workers for inputs ≥ 1 Mbp; the FAI index builds in O(n)
+and answers random `fetch` queries in tens of microseconds, independent of file
+size. Micro-benchmarks are also runnable via `pytest tests/test_benchmark.py
+--benchmark-only`.
+
 ## Python API
 
 ```python
@@ -121,8 +189,9 @@ print(idx.fetch("seq2", 1, 16))
 uv run --with pytest pytest -q      # 39 tests
 ```
 
-Continuous integration (GitHub Actions) runs `ruff` linting and the `pytest`
-suite on Python 3.10–3.12 for every push.
+Continuous integration (GitHub Actions) runs `ruff` linting, the `pytest`
+suite with coverage on Python 3.10–3.12 for every push, and builds & deploys
+the Sphinx documentation to GitHub Pages.
 
 ## Data sources
 

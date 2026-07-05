@@ -15,13 +15,21 @@ wheels/
 .ruff_cache/
 docs/_build/
 .ipynb_checkpoints/
+.coverage
+coverage.xml
+.benchmarks/
 
 # Nix
 result
 result-*
+
+# Snakemake
+.snakemake/
+results/
 
 # Course administration (local only)
 *.typ
 *.pdf
 *.bib
 homework.md
+figures/
