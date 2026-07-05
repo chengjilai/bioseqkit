@@ -11,7 +11,7 @@ from scratch in pure Python. `bioseqkit` implements FASTA/FASTQ parsing,
 sequence statistics, transformations, k-mer / minimizer analysis and FAI-like
 random-access indexing, exposed both as a Python API and a command-line tool.
 
-The project is a teaching implementation for **BIO2502 (Programming Languages
+The project is an implementation for **BIO2502 (Programming Languages
 for Biological Computing)**: it deliberately re-implements the low-level I/O,
 streaming and indexing logic instead of relying on Biopython, so the core
 design patterns of bioinformatics data handling are made explicit.
