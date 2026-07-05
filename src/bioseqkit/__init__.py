@@ -35,7 +35,7 @@ from bioseqkit.kmer import (
 )
 from bioseqkit.index import FaidxIndex, build_faidx, fetch
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "FastaRecord",

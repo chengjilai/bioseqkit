@@ -18,7 +18,7 @@
         # The core library has no runtime dependencies, so the closure is tiny.
         bioseqkit = python.pkgs.buildPythonPackage {
           pname = "bioseqkit";
-          version = "0.1.0";
+          version = "0.2.0";
           pyproject = true;
           src = ./.;
 
@@ -39,7 +39,7 @@
         #   nix build .#docker && docker load < result
         dockerImage = pkgs.dockerTools.buildLayeredImage {
           name = "bioseqkit";
-          tag = "0.1.0";
+          tag = "0.2.0";
           contents = [ bioseqkit ];
           config = {
             Entrypoint = [ "${bioseqkit}/bin/bioseqkit" ];
@@ -50,7 +50,7 @@
         # Reproducible Apptainer/Singularity image (SIF) from the same derivation.
         #   nix build .#apptainer  (produces a .img/.sif)
         apptainerImage = pkgs.singularity-tools.buildImage {
-          name = "bioseqkit-0.1.0";
+          name = "bioseqkit-0.2.0";
           contents = [ bioseqkit ];
           runScript = "exec ${bioseqkit}/bin/bioseqkit \"$@\"";
           diskSize = 1024;
