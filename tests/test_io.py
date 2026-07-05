@@ -42,6 +42,19 @@ def test_sequence_before_header_raises():
         list(parse_fasta(_io.StringIO("ACGT\n>a\nACGT\n")))
 
 
+def test_illegal_characters_are_preserved_not_crashing():
+    # Records with unexpected/illegal characters (digits, gaps, ambiguity codes,
+    # lowercase) must be parsed without error; validation is left to the caller.
+    text = ">weird desc\nACGT-N*12\nacgtRYKM\n"
+    records = list(parse_fasta(_io.StringIO(text)))
+    assert len(records) == 1
+    assert records[0].sequence == "ACGT-N*12acgtRYKM"
+    # downstream stats should still work on such input
+    from bioseqkit.stats import gc_content
+
+    assert 0.0 <= gc_content(records[0].sequence) <= 1.0
+
+
 def test_fastq_parsing(fastq_file):
     records = list(parse_fastq(str(fastq_file)))
     assert len(records) == 2

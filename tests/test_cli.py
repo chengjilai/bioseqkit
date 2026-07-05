@@ -30,6 +30,14 @@ def test_cli_translate(single_fasta, capsys):
     assert "frame-3" in out
 
 
+def test_cli_transcribe(single_fasta, capsys):
+    rc = main(["transcribe", str(single_fasta)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "ACGUACGUAC" in out
+    assert "T" not in out.split("\n", 1)[1]  # no thymine in RNA body
+
+
 def test_cli_kmer(multiline_fasta, capsys):
     rc = main(["kmer", str(multiline_fasta), "-k", "2", "--top", "3"])
     assert rc == 0

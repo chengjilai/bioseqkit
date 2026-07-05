@@ -17,7 +17,7 @@ from bioseqkit.index import build_faidx, fetch as fetch_region
 from bioseqkit.io import FastaRecord, parse_fasta, write_fasta
 from bioseqkit.kmer import count_kmers, count_kmers_parallel, minimizers, top_kmers
 from bioseqkit.stats import sequence_stats
-from bioseqkit.transform import reverse_complement, six_frame_translation
+from bioseqkit.transform import reverse_complement, six_frame_translation, transcribe
 
 
 def _read_sequences(path: str) -> list[FastaRecord]:
@@ -45,6 +45,15 @@ def cmd_translate(args: argparse.Namespace) -> int:
     for rec in _read_sequences(args.input):
         for frame in six_frame_translation(rec.sequence):
             out.append(FastaRecord(f"{rec.id}_frame{frame.name}", "", frame.protein))
+    write_fasta(out, sys.stdout)
+    return 0
+
+
+def cmd_transcribe(args: argparse.Namespace) -> int:
+    out = [
+        FastaRecord(rec.id, (rec.description + " rna").strip(), transcribe(rec.sequence))
+        for rec in _read_sequences(args.input)
+    ]
     write_fasta(out, sys.stdout)
     return 0
 
@@ -102,6 +111,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("translate", help="six-frame translation")
     p.add_argument("input")
     p.set_defaults(func=cmd_translate)
+
+    p = sub.add_parser("transcribe", help="DNA -> RNA transcription (T -> U)")
+    p.add_argument("input")
+    p.set_defaults(func=cmd_transcribe)
 
     p = sub.add_parser("kmer", help="k-mer frequency analysis")
     p.add_argument("input")

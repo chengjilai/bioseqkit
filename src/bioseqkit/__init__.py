@@ -19,7 +19,13 @@ from bioseqkit.stats import (
     n_ratio,
     sequence_stats,
 )
-from bioseqkit.transform import reverse_complement, six_frame_translation, translate
+from bioseqkit.transform import (
+    back_transcribe,
+    reverse_complement,
+    six_frame_translation,
+    transcribe,
+    translate,
+)
 from bioseqkit.kmer import (
     canonical_kmer,
     count_kmers,
@@ -44,6 +50,8 @@ __all__ = [
     "base_composition",
     "reverse_complement",
     "translate",
+    "transcribe",
+    "back_transcribe",
     "six_frame_translation",
     "count_kmers",
     "count_kmers_parallel",

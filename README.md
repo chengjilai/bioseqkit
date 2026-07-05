@@ -22,14 +22,15 @@ design patterns of bioinformatics data handling are made explicit.
   transparent gzip support, Phred quality decoding.
 - **Statistics** (`stats`) — length distribution, N50, GC content, N-base
   ratio, base-composition matrix.
-- **Transformations** (`transform`) — reverse complement (IUPAC aware) and
-  six-frame translation with the standard genetic code.
+- **Transformations** (`transform`) — reverse complement (IUPAC aware),
+  DNA↔RNA transcription, and six-frame translation with the standard genetic
+  code.
 - **k-mer analysis** (`kmer`) — counting, top-k, canonical k-mers,
   **multi-process** parallel counting, and **minimizer** sampling.
 - **FAI-like indexing** (`index`) — `samtools faidx`-compatible index for
   `chr:start-end` random access without scanning the whole file.
-- **CLI** (`cli`) — `stats`, `revcomp`, `translate`, `kmer`, `minimizer`,
-  `index`, `fetch`.
+- **CLI** (`cli`) — `stats`, `revcomp`, `translate`, `transcribe`, `kmer`,
+  `minimizer`, `index`, `fetch`.
 - **NCBI download** (`entrez`) — fetch reference sequences via E-utilities
   (standard-library HTTP only).
 
@@ -99,6 +100,7 @@ drift from the tested build.
 bioseqkit stats    examples/example_data/sample.fa      # JSON statistics
 bioseqkit revcomp  examples/example_data/sample.fa      # reverse complement
 bioseqkit translate examples/example_data/sample.fa     # six-frame translation
+bioseqkit transcribe examples/example_data/sample.fa    # DNA -> RNA (T -> U)
 bioseqkit kmer     examples/example_data/sample.fa -k 5 --top 10 --canonical
 bioseqkit kmer     examples/example_data/sample.fa -k 5 -t 4   # parallel
 bioseqkit minimizer examples/example_data/sample.fa -k 15 -w 10
@@ -125,10 +127,11 @@ bioseqkit fetch    examples/example_data/sample.fa seq2:1-16
 sorted by descending frequency (top-`--top`). With `--canonical`, a k-mer and
 its reverse complement are counted together, so results are strand-independent.
 
-**`revcomp` / `translate`** emit FASTA to stdout. `translate` produces six
-records per input sequence, suffixed `_frame+1..+3` (forward strand, offsets
-0/1/2) and `_frame-1..-3` (reverse-complement strand); `*` denotes a stop codon
-and `X` an untranslatable codon.
+**`revcomp` / `translate` / `transcribe`** emit FASTA to stdout. `translate`
+produces six records per input sequence, suffixed `_frame+1..+3` (forward
+strand, offsets 0/1/2) and `_frame-1..-3` (reverse-complement strand); `*`
+denotes a stop codon and `X` an untranslatable codon. `transcribe` returns the
+RNA form of each sequence (every `T` replaced by `U`).
 
 **`minimizer`** prints `seq_id<TAB>position<TAB>minimizer` — the sampled k-mers
 and their 0-based positions along the sequence.
@@ -174,6 +177,7 @@ for rec in bsk.parse_fasta("examples/example_data/sample.fa"):
     print(rec.id, len(rec), bsk.gc_content(rec.sequence))
 
 print(bsk.reverse_complement("ATGC"))            # -> GCAT
+print(bsk.transcribe("ATGC"))                    # -> AUGC
 print(bsk.translate("ATGGCCTAA"))                # -> MA*
 
 counts = bsk.count_kmers("ACGTACGTACGT", k=3, canonical=True)
@@ -195,12 +199,17 @@ the Sphinx documentation to GitHub Pages.
 
 ## Data sources
 
+- NCBI RefSeq: <https://www.ncbi.nlm.nih.gov/refseq/>
 - NCBI Nucleotide: <https://www.ncbi.nlm.nih.gov/nucleotide/>
+- NCBI Genome: <https://www.ncbi.nlm.nih.gov/genome/>
 - UCSC Genome Browser: <https://genome.ucsc.edu/>
+- Ensembl: <https://www.ensembl.org/>
 
-The bundled `examples/example_data/sample.fa` is a small synthetic sequence for
-offline testing; `demo.ipynb` will download real data from NCBI when a network
-connection is available and fall back to the bundled file otherwise.
+For teaching and quick tests, a small bacterial genome or the human
+mitochondrion (`chrM`, ~16.5 kbp) is recommended to keep files small. The
+bundled `examples/example_data/sample.fa` is a tiny synthetic sequence for
+offline testing; `demo.ipynb` downloads real data from NCBI when a network
+connection is available and falls back to the bundled file otherwise.
 
 ## License
 

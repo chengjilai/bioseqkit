@@ -11,6 +11,8 @@ from dataclasses import dataclass
 __all__ = [
     "reverse_complement",
     "complement",
+    "transcribe",
+    "back_transcribe",
     "translate",
     "six_frame_translation",
     "Frame",
@@ -51,6 +53,24 @@ def complement(sequence: str) -> str:
 def reverse_complement(sequence: str) -> str:
     """Return the reverse complement of a DNA sequence."""
     return sequence.translate(_COMPLEMENT)[::-1]
+
+
+_DNA_TO_RNA = str.maketrans("Tt", "Uu")
+_RNA_TO_DNA = str.maketrans("Uu", "Tt")
+
+
+def transcribe(sequence: str) -> str:
+    """Transcribe a DNA sequence into RNA by replacing ``T`` with ``U``.
+
+    Case is preserved. This mirrors the coding (sense) strand convention, where
+    the RNA has the same sequence as the template's complement.
+    """
+    return sequence.translate(_DNA_TO_RNA)
+
+
+def back_transcribe(sequence: str) -> str:
+    """Reverse-transcribe an RNA sequence into DNA by replacing ``U`` with ``T``."""
+    return sequence.translate(_RNA_TO_DNA)
 
 
 def translate(sequence: str, unknown: str = "X") -> str:

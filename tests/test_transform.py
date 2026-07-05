@@ -1,8 +1,10 @@
 """Tests for reverse complement and six-frame translation."""
 
 from bioseqkit.transform import (
+    back_transcribe,
     reverse_complement,
     six_frame_translation,
+    transcribe,
     translate,
 )
 
@@ -11,6 +13,14 @@ def test_reverse_complement_known():
     assert reverse_complement("ATGC") == "GCAT"
     assert reverse_complement("AAAA") == "TTTT"
     assert reverse_complement("ACGTN") == "NACGT"
+
+
+def test_transcribe_and_back():
+    assert transcribe("ATGC") == "AUGC"
+    assert transcribe("atgc") == "augc"
+    assert back_transcribe("AUGC") == "ATGC"
+    # round trip
+    assert back_transcribe(transcribe("ACGTACGT")) == "ACGTACGT"
 
 
 def test_reverse_complement_lowercase():
